@@ -14,7 +14,15 @@ It can also read a portion of the data as a random percentage to help detect cor
 
 ## Usage
 Each script should be run with cron or another scheduler like systemd to run at your needed interval.
-[cronguru](https://crontab.guru) can be used to help set the cron expression
+[cronguru](https://crontab.guru) can be used to help set the cron expression.
+This guide assumes you have signal-cli already running and configured.
+
+My crontab currently looks like this:
+```
+0 2 * * 1 /home/user/restic/restic-prune.sh
+0 1 * * * /home/user/restic/restic-backup.sh
+0 3 * * 1 /home/user/restic/restic-check.sh
+```
 
 ## Configuration
 These scripts assume you already have a repository initialised.
