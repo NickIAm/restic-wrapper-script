@@ -6,7 +6,7 @@
 # Do NOT modify this file directly
 # configuration is done inside of the settings.sh file
 
-source settings.sh
+source /home/nick/restic/settings.sh
 
 # Stage 0, Test config
 
