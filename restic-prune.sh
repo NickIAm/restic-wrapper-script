@@ -8,18 +8,18 @@
 
 source settings.sh
 
-# Static Variables, don't change
-RESTIC_HOSTNAME=$(hostname)
-
 # Stage 0, Test config
-restic cat config > /dev/null 2> /dev/null
+
+curl -fsS -m 10 --retry 5 "$CHECKIN_URL/start"
+CHECK_OUTPUT=$(restic cat config 2>&1)
 
 if [[ $? -eq 0 ]]; then
   echo "repo connect sucessful"
 else
-  curl -fsS -m 10 --retry 5 --data-raw "Could not connect to the restic repo" "$CHECKIN_URL/fail"
-
+  curl -fsS -m 10 --retry 5 --data-raw "$CHECK_OUTPUT" "$CHECKIN_URL/$?"
+  exit
 fi
+
 # Run forget
 
 OUTPUT=$(echo "" && restic forget --keep-last $RESTIC_KEEP_LATEST --keep-daily $RESTIC_KEEP_DAILY \
@@ -32,4 +32,4 @@ MESSAGE="Restic Prune Report for "$RESTIC_REPOSITORY$OUTPUT
 #This curl command sends a signal message using the Signal-CLI server
 # echo $JSON_MESSAGE | curl -X POST -H "Content-Type: application/json" -d @- $SIGNAL_API_URL
 
-curl -fsS -m 10 --retry 5 --data-raw "$MESSAGE" $CHECKIN_URL
+curl -fsS -m 10 --retry 5 --data-raw "$MESSAGE" "$PRUNE_URL/$?"

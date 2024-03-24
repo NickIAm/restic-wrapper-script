@@ -9,10 +9,15 @@
 source settings.sh
 
 # Stage 0, Test config
-restic cat config > /dev/null
+
+curl -fsS -m 10 --retry 5 "$CHECKIN_URL/start"
+CHECK_OUTPUT=$(restic cat config 2>&1)
 
 if [[ $? -eq 0 ]]; then
   echo "repo connect sucessful"
+else
+  curl -fsS -m 10 --retry 5 --data-raw "$CHECK_OUTPUT" "$CHECKIN_URL/$?"
+  exit
 fi
 
 # Stage 1, Run backup
@@ -50,5 +55,4 @@ MESSAGE="Restic Backup Report for "$RESTIC_HOSTNAME$OUTPUT
 
 # This curl command sends a signal message using the Signal-CLI server
 # echo $JSON_MESSAGE | curl -X POST -H "Content-Type: application/json" -d @- $SIGNAL_API_URL
-curl -fsS -m 10 --retry 5 --data-raw "$MESSAGE" $CHECKIN_URL
-# fi
+curl -fsS -m 10 --retry 5 --data-raw "$MESSAGE" "$CHECKIN_URL/$?"
