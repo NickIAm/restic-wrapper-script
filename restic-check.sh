@@ -10,7 +10,7 @@ source /home/nick/restic/settings.sh
 
 # Stage 0, Test config
 
-curl -fsS -m 10 --retry 5 "$CHECKIN_URL/start"
+curl -fsS -m 10 --retry 5 "$CHECK_VERIFY_URL/start"
 CHECK_OUTPUT=$(restic cat config 2>&1)
 
 if [[ $? -eq 0 ]]; then
