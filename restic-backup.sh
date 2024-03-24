@@ -25,14 +25,14 @@ echo "Taking backups to "$RESTIC_REPOSITORY
 OUTPUT=$(for dir in "${BACKUP_DIRECTORIES[@]}" ; do
   if [ -d "$dir" ]; then
 
-    echo "\n"
-    echo "Backing up '$dir' \n"
+    echo ""
+    echo "Backing up '$dir'"
 #     OUTPUT=$(restic backup --exclude-file=/home/nick/.restic_exclude \
 #     --exclude-caches $dir 2>&1 | )
-    restic backup --exclude-file=$EXCLUDE_FILE --exclude-caches $dir | awk '{printf "%s\\n", $0}'
+    restic backup --exclude-file=$EXCLUDE_FILE --exclude-caches $dir
 
   else
-    echo  "Directory '$dir' doesn't exsist \n"
+    echo  "Directory '$dir' doesn't exsist"
   fi
 
 done
@@ -43,11 +43,12 @@ done
 # REPORT=$(echo $OUTPUT | jq .message_type)
 
 # Build the message
-MESSAGE="Restic Backup Report\n"$RESTIC_HOSTNAME"\n"$OUTPUT
+MESSAGE="Restic Backup Report for "$RESTIC_HOSTNAME$OUTPUT
 
 # Build the JSON to write the message to signal CLI
-JSON_MESSAGE='{"base64_attachments": [], "message": "'$MESSAGE'", "number": "'$SIGNAL_FROM_NUMBER'", "recipients": [ "'$SIGNAL_TO_NUMBER'" ]}'
+# JSON_MESSAGE='{"base64_attachments": [], "message": "'$MESSAGE'", "number": "'$SIGNAL_FROM_NUMBER'", "recipients": [ "'$SIGNAL_TO_NUMBER'" ]}'
 
-#   #This curl command sends a signal message using the Signal-CLI server
-echo $JSON_MESSAGE | curl -X POST -H "Content-Type: application/json" -d @- $SIGNAL_API_URL
+# This curl command sends a signal message using the Signal-CLI server
+# echo $JSON_MESSAGE | curl -X POST -H "Content-Type: application/json" -d @- $SIGNAL_API_URL
+curl -fsS -m 10 --retry 5 --data-raw "$MESSAGE" $CHECKIN_URL
 # fi

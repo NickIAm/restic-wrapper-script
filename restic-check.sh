@@ -20,7 +20,7 @@ echo "Verifying backups of "$RESTIC_REPOSITORY
 
 # Tag with testing while script is in testing
 # Save the output of the backup command into the output variable in json format for later parsing
-OUTPUT=$(restic check --read-data-subset $RESTIC_VERIFY_PERCENT 2>&1 | awk '{printf "%s\\n", $0}')
+OUTPUT=$(echo "" && restic check --read-data-subset $RESTIC_VERIFY_PERCENT 2>&1)
 
 # Stage 2 parse and send the report
 
@@ -28,11 +28,12 @@ OUTPUT=$(restic check --read-data-subset $RESTIC_VERIFY_PERCENT 2>&1 | awk '{pri
 # REPORT=$(echo $OUTPUT | jq .message_type)
 
 # Build the message
-MESSAGE="Restic Check Report\n"$RESTIC_HOSTNAME"\n"$OUTPUT
+MESSAGE="Restic Check Report for "$RESTIC_REPOSITORY$OUTPUT
 
 # Build the JSON to write the message to signal CLI
-JSON_MESSAGE='{"base64_attachments": [], "message": "'$MESSAGE'", "number": "'$SIGNAL_FROM_NUMBER'", "recipients": [ "'$SIGNAL_TO_NUMBER'" ]}'
+# JSON_MESSAGE='{"base64_attachments": [], "message": "'$MESSAGE'", "number": "'$SIGNAL_FROM_NUMBER'", "recipients": [ "'$SIGNAL_TO_NUMBER'" ]}'
 
 #   #This curl command sends a signal message using the Signal-CLI server
-echo $JSON_MESSAGE | curl -X POST -H "Content-Type: application/json" -d @- $SIGNAL_API_URL
-# fi
+# echo $JSON_MESSAGE | curl -X POST -H "Content-Type: application/json" -d @- $SIGNAL_API_URL
+
+curl -fsS -m 10 --retry 5 --data-raw "$MESSAGE" $CHECKIN_URL

@@ -16,15 +16,20 @@ restic cat config > /dev/null 2> /dev/null
 
 if [[ $? -eq 0 ]]; then
   echo "repo connect sucessful"
+else
+  curl -fsS -m 10 --retry 5 --data-raw "Could not connect to the restic repo" "$CHECKIN_URL/fail"
+
 fi
 # Run forget
 
-OUTPUT=$(restic forget --keep-last $RESTIC_KEEP_LATEST --keep-daily $RESTIC_KEEP_DAILY \
+OUTPUT=$(echo "" && restic forget --keep-last $RESTIC_KEEP_LATEST --keep-daily $RESTIC_KEEP_DAILY \
  --keep-weekly $RESTIC_KEEP_WEEKLY --keep-monthly $RESTIC_KEEP_MONTHLY --keep-yearly $RESTIC_KEEP_YEARLY \
- --prune --max-repack-size 5g | awk '{printf "%s\\n", $0}')
-MESSAGE="Restic Prune Report\n"$RESTIC_HOSTNAME"\n"$RESTIC_REPOSITORY"\n"$OUTPUT
+ --prune --max-repack-size 5g)
+MESSAGE="Restic Prune Report for "$RESTIC_REPOSITORY$OUTPUT
 # Build the JSON to write the message to signal CLI
-JSON_MESSAGE='{"base64_attachments": [], "message": "'$MESSAGE'", "number": "'$SIGNAL_FROM_NUMBER'", "recipients": [ "'$SIGNAL_TO_NUMBER'" ]}'
+# JSON_MESSAGE='{"base64_attachments": [], "message": "'$MESSAGE'", "number": "'$SIGNAL_FROM_NUMBER'", "recipients": [ "'$SIGNAL_TO_NUMBER'" ]}'
 
 #This curl command sends a signal message using the Signal-CLI server
-echo $JSON_MESSAGE | curl -X POST -H "Content-Type: application/json" -d @- $SIGNAL_API_URL
+# echo $JSON_MESSAGE | curl -X POST -H "Content-Type: application/json" -d @- $SIGNAL_API_URL
+
+curl -fsS -m 10 --retry 5 --data-raw "$MESSAGE" $CHECKIN_URL
