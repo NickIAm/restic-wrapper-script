@@ -27,11 +27,10 @@ export RESTIC_KEEP_WEEKLY=6
 export RESTIC_KEEP_MONTHLY=1
 export RESTIC_KEEP_YEARLY=1
 
-# Options for signal cli notifications
-export SIGNAL_FROM_NUMBER="+4412345678"
-export SIGNAL_TO_NUMBER="+4412345678"
-export SIGNAL_API_URL="http://localhost:8080/v2/send"
-
+# Options for Healthchecks.io monitoring
+export CHECKIN_URL=""
+export PRUNE_URL=""
+export CHECK_VERIFY_URL=""
 
 # Static Variables, don't change
 RESTIC_HOSTNAME=$(hostname)

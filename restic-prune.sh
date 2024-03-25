@@ -13,6 +13,7 @@ source /home/nick/restic/settings.sh
 # Ping healthchecks to start the job and record run time
 curl -fsS -m 10 --retry 5 "$PRUNE_URL/start"
 
+# Check the output of the cat config command to verify the repository can be opened
 CHECK_OUTPUT=$(restic cat config 2>&1)
 
 if [[ $? -eq 0 ]]; then

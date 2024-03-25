@@ -47,7 +47,6 @@ OUTPUT=$(for dir in "${BACKUP_DIRECTORIES[@]}" ; do
   else
     echo  "Directory '$dir' doesn't exsist"
   fi
-
 done
 )
 
