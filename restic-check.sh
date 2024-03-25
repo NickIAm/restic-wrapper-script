@@ -10,35 +10,26 @@ source /home/nick/restic/settings.sh
 
 # Stage 0, Test config
 
+# Ping healthchecks to start the job and record run time
 curl -fsS -m 10 --retry 5 "$CHECK_VERIFY_URL/start"
+
+# Check the output of the cat config command to verify the repository can be opened
 CHECK_OUTPUT=$(restic cat config 2>&1)
 
 if [[ $? -eq 0 ]]; then
   echo "repo connect sucessful"
 else
-  curl -fsS -m 10 --retry 5 --data-raw "$CHECK_OUTPUT" "$CHECKIN_URL/$?"
+  # If unsucessfull, return an error status code and the output to healthchecks
+  # Then exit the script
+  curl -fsS -m 10 --retry 5 --data-raw "$CHECK_OUTPUT" "$CHECK_VERIFY_URL/$?"
   exit
 fi
 
 # Stage 1, Run backup
 echo "Verifying backups of "$RESTIC_REPOSITORY
 
-# Tag with testing while script is in testing
-# Save the output of the backup command into the output variable in json format for later parsing
+# Save the output of the backup command into the output variable to send to healthchecks
 OUTPUT=$(echo "Restic Check Report for "$RESTIC_REPOSITORY && restic check --read-data-subset $RESTIC_VERIFY_PERCENT 2>&1)
 
-# Stage 2 parse and send the report
-
-# Build the message to send the status report
-# REPORT=$(echo $OUTPUT | jq .message_type)
-
-# Build the message
-# MESSAGE="Restic Check Report for "$RESTIC_REPOSITORY$OUTPUT
-
-# Build the JSON to write the message to signal CLI
-# JSON_MESSAGE='{"base64_attachments": [], "message": "'$MESSAGE'", "number": "'$SIGNAL_FROM_NUMBER'", "recipients": [ "'$SIGNAL_TO_NUMBER'" ]}'
-
-#   #This curl command sends a signal message using the Signal-CLI server
-# echo $JSON_MESSAGE | curl -X POST -H "Content-Type: application/json" -d @- $SIGNAL_API_URL
-
+# Stage 2 send the report to healthchecks
 curl -fsS -m 10 --retry 5 --data-raw "$OUTPUT" "$CHECK_VERIFY_URL/$?"
