@@ -29,7 +29,21 @@ fi
 
 OUTPUT=$(echo "Restic Prune Report for "$RESTIC_REPOSITORY && restic forget --keep-last $RESTIC_KEEP_LATEST --keep-daily $RESTIC_KEEP_DAILY \
  --keep-weekly $RESTIC_KEEP_WEEKLY --keep-monthly $RESTIC_KEEP_MONTHLY --keep-yearly $RESTIC_KEEP_YEARLY \
- --prune --max-repack-size 5g)
+ --prune --max-repack-size 5g 2>&1
+
+ EXIT_CODE=$?
+
+  if [[ $EXIT_CODE -ne 0 ]]; then
+
+    echo "Something went wrong"
+    exit $exit_code
+  else
+
+    echo "Running Restic Check"
+    restic check
+  fi
+
+)
 
 # Send report to healthchecks
 curl -fsS -m 10 --retry 5 --data-raw "$OUTPUT" "$PRUNE_URL/$?"
