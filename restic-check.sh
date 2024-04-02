@@ -29,7 +29,7 @@ fi
 echo "Verifying backups of "$RESTIC_REPOSITORY
 
 # Save the output of the backup command into the output variable to send to healthchecks
-OUTPUT=$(echo "Restic Check Report for "$RESTIC_REPOSITORY && restic check --read-data-subset $RESTIC_VERIFY_PERCENT 2>&1)
+OUTPUT=$(echo "Restic Check Report for "$RESTIC_REPOSITORY && restic check --retry-lock 1h --read-data-subset $RESTIC_VERIFY_PERCENT 2>&1)
 
 # Stage 2 send the report to healthchecks
 curl -fsS -m 10 --retry 5 --data-raw "$OUTPUT" "$CHECK_VERIFY_URL/$?"

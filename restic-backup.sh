@@ -36,12 +36,12 @@ OUTPUT=$(for dir in "${BACKUP_DIRECTORIES[@]}" ; do
   if [ -d "$dir" ]; then
 
     echo "Backing up '$dir'"
-    restic backup --exclude-file=$EXCLUDE_FILE --exclude-caches $dir 2>&1
-    exit_code=$?
+    restic backup --retry-lock 1h --exclude-file=$EXCLUDE_FILE --exclude-caches $dir 2>&1
+    EXIT_CODE=$?
 
-    if [[ $exit_code -ne 0 ]]; then
+    if [[ $EXIT_CODE -ne 0 ]]; then
       echo "The previous backup run had an error"
-      exit $exit_code
+      exit $EXIT_CODE
     fi
 
   else
