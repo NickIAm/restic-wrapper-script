@@ -41,7 +41,12 @@ OUTPUT=$(for dir in "${BACKUP_DIRECTORIES[@]}" ; do
     echo ""
 
     if [[ $EXIT_CODE -ne 0 ]]; then
-      echo "The previous backup run had an error"
+
+      if [[ $EXIT_CODE -eq 3 ]]; then
+
+        echo "The previous backup run could not access certain files"
+        exit 0
+      fi
       exit $EXIT_CODE
     fi
 
