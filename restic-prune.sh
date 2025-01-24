@@ -27,9 +27,9 @@ fi
 
 # Run forget
 
-OUTPUT=$(echo "Restic Prune Report for "$RESTIC_REPOSITORY && restic forget -q --retry-lock 1h --keep-last $RESTIC_KEEP_LATEST --keep-daily $RESTIC_KEEP_DAILY \
+OUTPUT=$(echo "Restic Prune Report for "$RESTIC_REPOSITORY && restic forget -q --retry-lock 1h --tag="" --keep-last $RESTIC_KEEP_LATEST --keep-daily $RESTIC_KEEP_DAILY \
  --keep-weekly $RESTIC_KEEP_WEEKLY --keep-monthly $RESTIC_KEEP_MONTHLY --keep-yearly $RESTIC_KEEP_YEARLY \
-&& restic prune --max-repack-size 5g 2>&1
+&& restic prune --max-repack-size $RESTIC_MAX_PRUNE_REPACK_SIZE 2>&1
 
  EXIT_CODE=$?
 

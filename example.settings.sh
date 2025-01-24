@@ -27,6 +27,9 @@ export RESTIC_KEEP_WEEKLY=6
 export RESTIC_KEEP_MONTHLY=1
 export RESTIC_KEEP_YEARLY=1
 
+# Prune options
+export RESTIC_MAX_PRUNE_REPACK_SIZE=25g
+
 # Options for Healthchecks.io monitoring
 export CHECKIN_URL=""
 export PRUNE_URL=""
