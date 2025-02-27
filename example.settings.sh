@@ -15,7 +15,7 @@ export RESTIC_READ_CONCURRENCY=2
 # Backup options
 export RESTIC_PACK_SIZE=64
 export EXCLUDE_FILE=/home/user/.restic_exclude
-export BACKUP_DIRECTORIES=("/home/user")
+export BACKUP_SOURCE=/home/nick/restic/backup_include
 
 # Check Options
 export RESTIC_VERIFY_PERCENT=0.1%

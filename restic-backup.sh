@@ -12,11 +12,12 @@ source /home/nick/restic/settings.sh
 
 # Ping healthchecks to start the job and record run time
 curl -fsS -m 10 --retry 5 "$CHECKIN_URL/start"
+echo ""
 
 CHECK_OUTPUT=$(restic cat config 2>&1)
 
 if [[ $? -eq 0 ]]; then
-  echo "repo connect sucessful"
+  echo "Repo connected sucessfully"
 else
   # If unsucessfull, return an error status code and the output to healthchecks
   # Then exit the script
@@ -32,11 +33,9 @@ echo "Taking backups to "$RESTIC_REPOSITORY
 # and ship it off to signal cli for notification
 # Store the exit code of the last run, check it is non zero and continue
 
-OUTPUT=$(for dir in "${BACKUP_DIRECTORIES[@]}" ; do
-  if [ -d "$dir" ]; then
-
-    echo "Backing up '$dir'"
-    restic backup --retry-lock 1h --exclude-file=$EXCLUDE_FILE --exclude-caches $dir 2>&1
+OUTPUT=$(echo "Backing up the following directories"
+    cat $BACKUP_SOURCE
+    restic backup --retry-lock 1h --one-file-system --tag script_test --files-from=$BACKUP_SOURCE --exclude-file=$EXCLUDE_FILE --exclude-caches 2>&1
     EXIT_CODE=$?
     echo ""
 
@@ -49,12 +48,10 @@ OUTPUT=$(for dir in "${BACKUP_DIRECTORIES[@]}" ; do
       fi
       exit $EXIT_CODE
     fi
-
-  else
-    echo  "Directory '$dir' doesn't exsist"
-  fi
-done
 )
+
+echo -e $OUTPUT
 
 # Stage 2 send the report
 curl -fsS -m 10 --retry 5 --data-raw "$OUTPUT" "$CHECKIN_URL/$?"
+echo ""

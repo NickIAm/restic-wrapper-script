@@ -1,2 +1,4 @@
 settings.sh
 sync.sh
+settings.local.sh
+backup_include
