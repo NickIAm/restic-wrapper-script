@@ -28,18 +28,20 @@ fi
 # Stage 1, Run backup
 echo "Taking backups to "$RESTIC_REPOSITORY
 
-# Loop through a list of given directories to backup
-# Caputre the output of the backup command and loop inside the output variable
-# and ship it off to signal cli for notification
+# Use a list of given directories to backup
+# Capture the output of the backup command inside the output variable
+# and ship it off to healthcheck server for notification and logging
 # Store the exit code of the last run, check it is non zero and continue
 
 OUTPUT=$(echo "Backing up the following directories"
     cat $BACKUP_SOURCE
-    restic backup --retry-lock 1h --one-file-system --tag script_test --files-from=$BACKUP_SOURCE --exclude-file=$EXCLUDE_FILE --exclude-caches 2>&1
+    restic backup --retry-lock 1h --one-file-system --tag v2_script --files-from=$BACKUP_SOURCE --exclude-file=$EXCLUDE_FILE --exclude-caches 2>&1
     EXIT_CODE=$?
     echo ""
 
     if [[ $EXIT_CODE -ne 0 ]]; then
+
+#     An exit code of 3 means some files were inaccessable during the snapshot
 
       if [[ $EXIT_CODE -eq 3 ]]; then
 
@@ -49,8 +51,6 @@ OUTPUT=$(echo "Backing up the following directories"
       exit $EXIT_CODE
     fi
 )
-
-echo -e $OUTPUT
 
 # Stage 2 send the report
 curl -fsS -m 10 --retry 5 --data-raw "$OUTPUT" "$CHECKIN_URL/$?"

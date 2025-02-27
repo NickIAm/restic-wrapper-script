@@ -27,9 +27,21 @@ fi
 
 # Run forget
 
-OUTPUT=$(echo "Restic Prune Report for "$RESTIC_REPOSITORY && restic forget -q --retry-lock 1h --tag="" --keep-last $RESTIC_KEEP_LATEST --keep-daily $RESTIC_KEEP_DAILY \
- --keep-weekly $RESTIC_KEEP_WEEKLY --keep-monthly $RESTIC_KEEP_MONTHLY --keep-yearly $RESTIC_KEEP_YEARLY \
-&& restic prune --max-repack-size $RESTIC_MAX_PRUNE_REPACK_SIZE 2>&1
+OUTPUT=$(echo "Restic Prune Report for "$RESTIC_REPOSITORY \
+&& restic forget -q --retry-lock 1h --tag="v2_script" \
+--group-by host \
+--keep-last $RESTIC_KEEP_LATEST \
+--keep-daily $RESTIC_KEEP_DAILY \
+--keep-weekly $RESTIC_KEEP_WEEKLY \
+--keep-monthly $RESTIC_KEEP_MONTHLY \
+--keep-yearly $RESTIC_KEEP_YEARLY \
+&& restic forget -q --retry-lock 1h --tag="" \
+--keep-within-daily="$RESTIC_KEEP_DAILY"d \
+--keep-within-weekly=60d \
+--keep-within-monthly="$RESTIC_KEEP_MONTHLY"m \
+--keep-within-yearly="$RESTIC_KEEP_YEARLY"y \
+&& restic prune --max-repack-size $RESTIC_MAX_PRUNE_REPACK_SIZE \
+--repack-small 2>&1
 
  EXIT_CODE=$?
 
